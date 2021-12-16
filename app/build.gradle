@@ -35,6 +35,10 @@ android {
 }
 
 dependencies {
+    //image
+    implementation 'com.squareup.picasso:picasso:2.71828'
+    // Circle image view
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
     //Retrofit XMLConverter
     implementation ('com.squareup.retrofit2:converter-simplexml:2.2.0')
             {

@@ -1,4 +1,4 @@
-package com.example.parsexmlusingretrofitmac
+package com.example.parsexmlusingretrofitmac.services
 
 import retrofit2.Retrofit
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory

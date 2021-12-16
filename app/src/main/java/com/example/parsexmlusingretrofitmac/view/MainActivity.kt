@@ -1,14 +1,17 @@
-package com.example.parsexmlusingretrofitmac
+package com.example.parsexmlusingretrofitmac.view
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import retrofit2.Retrofit
-import retrofit2.converter.simplexml.SimpleXmlConverterFactory
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.parsexmlusingretrofitmac.AppFeed
 import com.example.parsexmlusingretrofitmac.databinding.ActivityMainBinding
+import com.example.parsexmlusingretrofitmac.model.App
+import com.example.parsexmlusingretrofitmac.recyclerview.AppAdapter
+import com.example.parsexmlusingretrofitmac.services.APIClient
+import com.example.parsexmlusingretrofitmac.services.APIInterface
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -23,7 +26,7 @@ class MainActivity : AppCompatActivity() {
 
     var numberOFApp = 10
 
-    var appTitles = arrayListOf<String>()
+    var appTitles = arrayListOf<App>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,7 +51,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupRV() {
         appRecyclerView = binding.rvApp
-        appAdapter = AppAdapter(appTitles)
+        appAdapter = AppAdapter(appTitles, this)
         appRecyclerView.adapter = appAdapter
         appRecyclerView.layoutManager = LinearLayoutManager(this)
     }
@@ -57,21 +60,26 @@ class MainActivity : AppCompatActivity() {
         val apiInterface = APIClient().getClient()?.create(APIInterface::class.java)
         val call = apiInterface?.feed(numberOFApp)
 
-        call!!.enqueue(object : Callback<RssFeed?> {
-            override fun onResponse(call: Call<RssFeed?>, response: Response<RssFeed?>) {
+        call!!.enqueue(object : Callback<AppFeed?> {
+            override fun onResponse(call: Call<AppFeed?>, response: Response<AppFeed?>) {
                 Log.d(TAG, "onResponse: feed: " + response.body().toString())
                 Log.d(TAG, "onResponse: Server Response: $response")
-                title = response.body()?.title
 
                 val entries = response.body()!!.entries
                 for (entry in entries!!) {
                     Log.d(TAG, "title: " + entry.title)
-                    appTitles.add(entry.title!!)
+                    Log.d(TAG, "image: " + entry.imageUrl!![0].url)
+                    val title = entry.title!!
+                    val name = entry.name!!
+                    val image = entry.imageUrl!![0].url!!
+                    val summary = entry.summary!!
+
+                    appTitles.add( App(title,name,summary,image) )
                 }
                 appAdapter.update(appTitles)
             }
 
-            override fun onFailure(call: Call<RssFeed?>, t: Throwable) {
+            override fun onFailure(call: Call<AppFeed?>, t: Throwable) {
                 Log.e(TAG, "onFailure: Unable to retrieve RSS: " + t.message)
                 Toast.makeText(this@MainActivity, "An Error Occured", Toast.LENGTH_SHORT).show()
             }
